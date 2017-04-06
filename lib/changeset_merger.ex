@@ -73,5 +73,74 @@ defmodule ChangesetMerger do
     end
   end
 
+  @doc """
+  Derive a field from another field based on the provided function.  If
+  the source field is not set, then do not do anything.
 
+  It will treat string and atoms as the same underlying value
+
+  ## Examples
+
+      iex> ChangesetMerger.derive(%{}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{}
+
+      iex> ChangesetMerger.derive(%{"apples" => "green"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{"apples" => "green", "oranges" => "neerg"}
+
+      iex> ChangesetMerger.derive(%{"apples" => "green", "oranges" => "ignore"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{"apples" => "green", "oranges" => "neerg"}
+
+      iex> ChangesetMerger.derive(%{apples: "green"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{:apples => "green", "oranges" => "neerg"}
+
+  """
+  def derive(params, from_field, to_field, fun) when is_atom(from_field) do
+    derive(params, "#{from_field}", from_field, to_field, fun)
+  end
+  def derive(params, from_field, to_field, fun) when is_binary(from_field) do
+    derive(params, from_field, String.to_atom(from_field), to_field, fun)
+  end
+  defp derive(params, field_str, field_atom, to_field, fun) do
+    cond do
+      Map.has_key?(params, field_str) -> Map.put(params, to_field, fun.(params[field_str]))
+      Map.has_key?(params, field_atom) -> Map.put(params, to_field, fun.(params[field_atom]))
+      :else -> params
+    end
+  end
+
+  @doc """
+  Derive a field from another field based on the provided function.
+  only if the target field IS NOT set.  If the source field
+  is not set, then do not do anything.
+
+  It will treat string and atoms as the same underlying value
+
+  ## Examples
+
+      iex> ChangesetMerger.derive_if_missing(%{}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{}
+
+      iex> ChangesetMerger.derive_if_missing(%{"apples" => "green"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{"apples" => "green", "oranges" => "neerg"}
+
+      iex> ChangesetMerger.derive_if_missing(%{apples: "green"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{:apples => "green", "oranges" => "neerg"}
+
+      iex> ChangesetMerger.derive_if_missing(%{"apples" => "green", "oranges" => "overwritten"}, "apples", "oranges", fn(x) -> String.reverse(x) end)
+      %{"apples" => "green", "oranges" => "overwritten"}
+
+  """
+  def derive_if_missing(params, from_field, to_field, fun) when is_atom(from_field) do
+    derive_if_missing(params, "#{from_field}", from_field, to_field, fun)
+  end
+  def derive_if_missing(params, from_field, to_field, fun) when is_binary(from_field) do
+    derive_if_missing(params, from_field, String.to_atom(from_field), to_field, fun)
+  end
+  defp derive_if_missing(params, field_str, field_atom, to_field, fun) do
+    cond do
+      Map.has_key?(params, field_str) -> defaulted(params, to_field, fun.(params[field_str]))
+      Map.has_key?(params, field_atom) -> defaulted(params, to_field, fun.(params[field_atom]))
+      :else -> params
+    end
+  end
 end
