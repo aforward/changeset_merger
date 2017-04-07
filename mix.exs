@@ -3,7 +3,7 @@ defmodule ChangesetMerger.Mixfile do
 
   @git_url "https://github.com/aforward/changeset_merger"
   @home_url @git_url
-  @version "0.2.0"
+  @version "0.3.0"
 
   def project do
     [app: :changeset_merger,
@@ -26,7 +26,7 @@ defmodule ChangesetMerger.Mixfile do
   defp deps do
     [{:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
      {:ex_doc, ">= 0.0.0", only: :dev},
-     {:ecto, "~> 2.1"},]
+     {:ecto, "~> 2.1"}]
   end
 
   defp package do
