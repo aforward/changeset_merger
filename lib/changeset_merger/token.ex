@@ -1,5 +1,7 @@
 defmodule ChangesetMerger.Token do
 
+  @alphanumeric "ABCDEFGHJKLMNPQRSTUVWXYZabcdefhijkmnpqrstuvwxyz123456789" |> String.split("", trim: true)
+
   @doc """
   Generate an unguessable (non incremented) public identifier
 
@@ -9,7 +11,11 @@ defmodule ChangesetMerger.Token do
       20
 
   """
-  def generate(len), do: :crypto.strong_rand_bytes(len) |> Base.url_encode64 |> binary_part(0, len)
+  def generate(len) do
+    Enum.reduce((1..len), [], fn (_, acc) ->
+      [Enum.random(@alphanumeric) | acc]
+    end) |> Enum.join("")
+  end
 
   @doc """
   Add a token to your changeset if none is already set
