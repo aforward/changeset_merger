@@ -27,7 +27,8 @@ defmodule ChangesetMerger.Mixfile do
     [{:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
      {:ex_doc, ">= 0.0.0", only: :dev},
      {:ecto, "~> 2.1"},
-     {:slugger, "~> 0.1.0"}]
+     {:slugger, "~> 0.1.0"},
+     {:timex, "~> 3.0"}]
   end
 
   defp package do
