@@ -2,7 +2,7 @@ defmodule ChangesetMerger.Token do
 
   @alphanumeric "ABCDEFGHJKLMNPQRSTUVWXYZabcdefhijkmnpqrstuvwxyz123456789" |> String.split("", trim: true)
 
-  @doc """
+  @doc"""
   Generate an unguessable (non incremented) public identifier
 
   ## Examples
@@ -17,7 +17,7 @@ defmodule ChangesetMerger.Token do
     end) |> Enum.join("")
   end
 
-  @doc """
+  @doc"""
   Add a token to your changeset if none is already set
 
   ## Examples
@@ -48,7 +48,7 @@ defmodule ChangesetMerger.Token do
     ChangesetMerger.defaulted(changeset, field, ChangesetMerger.Token.generate(len))
   end
 
-  @doc """
+  @doc"""
   Set a new token to your changeset
 
   ## Examples

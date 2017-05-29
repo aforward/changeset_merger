@@ -4,7 +4,7 @@ defmodule ChangesetMerger do
   with relative ease
   """
 
-  @doc """
+  @doc"""
   Check for the `field` in the provided changeset, and if
   not found then set it ot the it based on the provide function.
 
@@ -27,7 +27,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc """
+  @doc"""
   Force a field to be a certain value.
 
   ## Examples
@@ -47,7 +47,7 @@ defmodule ChangesetMerger do
     Ecto.Changeset.put_change(changeset, field, val)
   end
 
-  @doc """
+  @doc"""
   Derive a field from another field based on the provided function.  If
   the source field is not set, then do not do anything.
 
@@ -76,7 +76,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc """
+  @doc"""
   Derive a field from another field based on the provided function.
   only if the target field IS NOT set.  If the source field
   is not set, then do not do anything.
@@ -106,7 +106,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc """
+  @doc"""
   Changesets can run without a "changeset", by passing a tuple
   containing both the data and the supported types as a tuple instead of a struct:
 
