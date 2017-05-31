@@ -63,12 +63,18 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
 
+      iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
+      ...> |> ChangesetMerger.derive(:apples, fn(x) -> String.reverse(x) end)
+      ...> |> Map.get(:changes)
+      %{apples: "neerg"}
+
       iex> ChangesetMerger.create(%{"apples" => "green", "oranges" => "blue"}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
 
   """
+  def derive(changeset, field, fun), do: derive(changeset, field, field, fun)
   def derive(changeset, from_field, to_field, fun) do
     case Ecto.Changeset.get_change(changeset, from_field) do
       nil -> changeset
