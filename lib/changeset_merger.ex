@@ -175,7 +175,7 @@ defmodule ChangesetMerger do
   end
 
   defp get_value(changeset, field) do
-    get_change(changeset, field) || changeset.data[field]
+    get_change(changeset, field) || Map.get(changeset.data, field)
   end
 
   defp put_change_if(changeset, to_field, val) do

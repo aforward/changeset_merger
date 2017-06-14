@@ -5,7 +5,13 @@ defmodule ChangesetMergerTest do
   doctest ChangesetMerger.Token
   doctest ChangesetMerger.ExpiresAt
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  defstruct apples: nil
+
+  test "handle struct" do
+    changes = ChangesetMerger.create(%ChangesetMergerTest{apples: "red"}, %{}, %{apples: :string})
+      |> ChangesetMerger.defaulted(:apples, "blue")
+      |> Map.get(:changes)
+
+    assert changes == %{}
   end
 end
