@@ -14,6 +14,8 @@ defmodule ChangesetMerger.Mixfile do
      package: package(),
      source_url: @git_url,
      homepage_url: @home_url,
+     docs: [main: "ChangesetMerger",
+            extras: ["README.md"]],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
