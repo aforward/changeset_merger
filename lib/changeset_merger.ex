@@ -4,6 +4,8 @@ defmodule ChangesetMerger do
   with relative ease
   """
 
+  import Ecto.Changeset, only: [get_change: 2, put_change: 3]
+
   @doc"""
   Check for the `field` in the provided changeset, and if
   not found then set it ot the it based on the provide function.
@@ -21,8 +23,8 @@ defmodule ChangesetMerger do
       %{apples: "red"}
   """
   def defaulted(changeset, field, default_if_missing) do
-    case Ecto.Changeset.get_change(changeset, field) do
-      nil -> Ecto.Changeset.put_change(changeset, field, default_if_missing)
+    case get_change(changeset, field) do
+      nil -> put_change(changeset, field, default_if_missing)
       _ -> changeset
     end
   end
@@ -37,6 +39,7 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{apples: "blue"}
 
+
       iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
       ...> |> ChangesetMerger.force(:apples, "blue")
       ...> |> Map.get(:changes)
@@ -44,11 +47,11 @@ defmodule ChangesetMerger do
 
   """
   def force(changeset, field, val) do
-    Ecto.Changeset.put_change(changeset, field, val)
+    put_change(changeset, field, val)
   end
 
   @doc"""
-  Derive a field from another field based on the provided function.  If
+  Derive a field from another field (or fields) based on the provided function.  If
   the source field is not set, then do not do anything.
 
   ## Examples
@@ -63,6 +66,11 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
 
+      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.derive([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
+      ...> |> Map.get(:changes)
+      %{apples: "green", bananas: "blue", oranges: "greenblue"}
+
       iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
       ...> |> ChangesetMerger.derive(:apples, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
@@ -75,15 +83,15 @@ defmodule ChangesetMerger do
 
   """
   def derive(changeset, field, fun), do: derive(changeset, field, field, fun)
-  def derive(changeset, from_field, to_field, fun) do
-    case Ecto.Changeset.get_change(changeset, from_field) do
+  def derive(changeset, from_field_or_fields, to_field, fun) do
+    case field_values(changeset, from_field_or_fields) do
       nil -> changeset
-      val -> Ecto.Changeset.put_change(changeset, to_field, fun.(val))
+      inputs -> put_change(changeset, to_field, fun.(inputs))
     end
   end
 
   @doc"""
-  Derive a field from another field based on the provided function.
+  Derive a field from another field (or fields) based on the provided function.
   only if the target field IS NOT set.  If the source field
   is not set, then do not do anything.
 
@@ -93,6 +101,11 @@ defmodule ChangesetMerger do
       ...> |> ChangesetMerger.derive_if_missing(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{}
+
+      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.derive_if_missing([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
+      ...> |> Map.get(:changes)
+      %{apples: "green", bananas: "blue", oranges: "greenblue"}
 
       iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
       ...> |> ChangesetMerger.derive_if_missing(:apples, :oranges, fn(x) -> String.reverse(x) end)
@@ -104,11 +117,16 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "blue"}
 
+      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue", "oranges" => "purple"}, %{apples: :string, bananas: :string, oranges: :string})
+      ...> |> ChangesetMerger.derive_if_missing([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
+      ...> |> Map.get(:changes)
+      %{apples: "green", bananas: "blue", oranges: "purple"}
+
   """
-  def derive_if_missing(changeset, from_field, to_field, fun) do
-    case Ecto.Changeset.get_change(changeset, from_field) do
+  def derive_if_missing(changeset, from_field_or_fields, to_field, fun) do
+    case field_values(changeset, from_field_or_fields) do
       nil -> changeset
-      val -> defaulted(changeset, to_field, fun.(val))
+      inputs -> defaulted(changeset, to_field, fun.(inputs))
     end
   end
 
@@ -128,5 +146,11 @@ defmodule ChangesetMerger do
     |> Ecto.Changeset.cast(params, Map.keys(types))
   end
 
+  defp field_values(changeset, from_fields) when is_list(from_fields) do
+    Enum.map(from_fields, &(get_change(changeset, &1)))
+  end
+  defp field_values(changeset, from_field) do
+    get_change(changeset, from_field)
+  end
 
 end
