@@ -17,14 +17,19 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{apples: "blue"}
 
+      iex> ChangesetMerger.create(%{apples: "red"}, %{}, %{apples: :string})
+      ...> |> ChangesetMerger.defaulted(:apples, "blue")
+      ...> |> Map.get(:changes)
+      %{}
+
       iex> ChangesetMerger.create(%{"apples" => "red"}, %{apples: :string})
       ...> |> ChangesetMerger.defaulted(:apples, "blue")
       ...> |> Map.get(:changes)
       %{apples: "red"}
   """
   def defaulted(changeset, field, default_if_missing) do
-    case get_change(changeset, field) do
-      nil -> put_change(changeset, field, default_if_missing)
+    case get_value(changeset, field) do
+      nil -> put_change_if(changeset, field, default_if_missing)
       _ -> changeset
     end
   end
@@ -47,7 +52,7 @@ defmodule ChangesetMerger do
 
   """
   def force(changeset, field, val) do
-    put_change(changeset, field, val)
+    put_change_if(changeset, field, val)
   end
 
   @doc"""
@@ -65,6 +70,16 @@ defmodule ChangesetMerger do
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
+
+      iex> ChangesetMerger.create(%{apples: "green"}, %{}, %{apples: :string})
+      ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
+      ...> |> Map.get(:changes)
+      %{oranges: "neerg"}
+
+      iex> ChangesetMerger.create(%{apples: "green", oranges: "neerg"}, %{}, %{apples: :string})
+      ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
+      ...> |> Map.get(:changes)
+      %{}
 
       iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string})
       ...> |> ChangesetMerger.derive([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
@@ -86,7 +101,7 @@ defmodule ChangesetMerger do
   def derive(changeset, from_field_or_fields, to_field, fun) do
     case field_values(changeset, from_field_or_fields) do
       nil -> changeset
-      inputs -> put_change(changeset, to_field, fun.(inputs))
+      inputs -> put_change_if(changeset, to_field, fun.(inputs))
     end
   end
 
@@ -140,17 +155,34 @@ defmodule ChangesetMerger do
         %{"first_name" => "Andrew"},
         %{first_name: :string, last_name: :string, email: :string})
 
+  If you want to seed the underlying mode, then use the &create/3 function
+      ChangesetMerger.create(
+        %{"first_name" => "Normal Andrew"},
+        %{"first_name" => "Super Andrew"},
+        %{first_name: :string, last_name: :string, email: :string})
   """
-  def create(params, types) do
-    {%{}, types}
+  def create(params, types), do: create(%{}, params, types)
+  def create(record, params, types) do
+    {record, types}
     |> Ecto.Changeset.cast(params, Map.keys(types))
   end
 
   defp field_values(changeset, from_fields) when is_list(from_fields) do
-    Enum.map(from_fields, &(get_change(changeset, &1)))
+    Enum.map(from_fields, &(get_value(changeset, &1)))
   end
   defp field_values(changeset, from_field) do
-    get_change(changeset, from_field)
+    get_value(changeset, from_field)
   end
 
+  defp get_value(changeset, field) do
+    get_change(changeset, field) || changeset.data[field]
+  end
+
+  defp put_change_if(changeset, to_field, val) do
+    if (get_value(changeset, to_field) == val) do
+      changeset
+    else
+      put_change(changeset, to_field, val)
+    end
+  end
 end
