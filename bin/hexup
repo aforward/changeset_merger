@@ -1,0 +1,5 @@
+#!/bin/bash
+
+MODE=${1-patch}
+./bin/version/up $MODE && \
+  mix hex.publish
