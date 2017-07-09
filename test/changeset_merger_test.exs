@@ -14,4 +14,12 @@ defmodule ChangesetMergerTest do
 
     assert changes == %{}
   end
+
+  test "apply defaulted when missing" do
+    changeset = %{}
+      |> ChangesetMerger.create(%{apples: :string})
+      |> ChangesetMerger.defaulted(:apples, "green")
+
+    assert changeset.changes == %{apples: "green"}
+  end
 end
