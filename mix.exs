@@ -3,7 +3,7 @@ defmodule ChangesetMerger.Mixfile do
 
   @git_url "https://github.com/aforward/changeset_merger"
   @home_url @git_url
-  @version "0.3.9"
+  @version "0.3.10"
 
   def project do
     [app: :changeset_merger,
