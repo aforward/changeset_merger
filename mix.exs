@@ -30,7 +30,8 @@ defmodule ChangesetMerger.Mixfile do
      {:ex_doc, ">= 0.0.0", only: :dev},
      {:ecto, "~> 2.1"},
      {:slugger, "~> 0.2.0"},
-     {:version_tasks, "~> 0.7.0"},
+     {:version_tasks, "~> 0.10.0"},
+     {:fn_expr, "~> 0.2"},
      {:timex, "~> 3.0"}]
   end
 
