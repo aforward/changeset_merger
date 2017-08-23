@@ -41,16 +41,28 @@ defmodule ChangesetMerger.ConfigTest do
     assert %{a: "abc", b: "def", c: "xxx"} == Config.resolve(%{a: "${CSM_ABC}", b: "${CSM_DEF}", c: "xxx"})
   end
 
+  test "resolve tuple" do
+    assert {:a, "abc"} == Config.resolve({:a, "${CSM_ABC}"})
+  end
+
+  test "resolve keyword lists" do
+    assert [a: "abc", b: "def", c: "xxx"] == Config.resolve([a: "${CSM_ABC}", b: "${CSM_DEF}", c: "xxx"])
+  end
 
   test "init (nothing to do)" do
     untouched = %{one: 1, a: :a, b: "b", c: ["c", "d", "e"]}
     assert {:ok, untouched} == Config.init(untouched)
   end
 
-  test "resolve all variables" do
+  test "init all variables" do
     System.put_env("CSM_ABC", "abc")
     System.put_env("CSM_DEF", "def")
     assert {:ok, %{a: "abc", b: "abc_def"}} == Config.init(%{a: "${CSM_ABC}", b: "${CSM_ABC}_${CSM_DEF}"})
   end
+
+  test "init keyword lists" do
+    assert {:ok, [a: "abc", b: "def", c: "xxx"]} == Config.init([a: "${CSM_ABC}", b: "${CSM_DEF}", c: "xxx"])
+  end
+
 
 end

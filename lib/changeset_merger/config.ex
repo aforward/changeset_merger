@@ -14,8 +14,7 @@ defmodule ChangesetMerger.Config do
   """
   def init(config) do
     config
-    |> Enum.map(fn {k, v} -> {k, v |> resolve} end)
-    |> Enum.into(%{})
+    |> resolve
     |> invoke({:ok, &1})
   end
 
@@ -47,6 +46,10 @@ defmodule ChangesetMerger.Config do
   """
   def resolve(input) when is_list(input) do
     input |> Enum.map(fn v -> resolve(v) end)
+  end
+
+  def resolve({k, v}) do
+    {k, v |> resolve}
   end
 
   def resolve(input) when is_map(input) do
