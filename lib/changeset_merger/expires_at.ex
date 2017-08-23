@@ -38,7 +38,7 @@ defmodule ChangesetMerger.ExpiresAt do
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
       ...> |> Timex.format!("{ISO:Basic}")
-      "20150921T045034+0000"
+      "20150921T095034+0000"
 
       iex> ChangesetMerger.create(%{"token_expires_at" => nil}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.defaulted(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
