@@ -28,11 +28,11 @@ defmodule ChangesetMerger.Mixfile do
   defp deps do
     [{:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
      {:ex_doc, ">= 0.0.0", only: :dev},
-     {:ecto, "~> 2.1"},
+     {:ecto, "~> 2.2"},
      {:slugger, "~> 0.2.0"},
-     {:version_tasks, "~> 0.10.0"},
+     {:version_tasks, "~> 0.10"},
      {:fn_expr, "~> 0.2"},
-     {:timex, "~> 3.0"}]
+     {:timex, "~> 3.1"}]
   end
 
   defp package do
