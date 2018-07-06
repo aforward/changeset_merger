@@ -8,7 +8,7 @@ defmodule ChangesetMerger.Mixfile do
   def project do
     [app: :changeset_merger,
      version: @version,
-     elixir: "~> 1.4",
+     elixir: ">= 1.4.0",
      name: "ChangesetMerger",
      description: "A library for common Ecto changeset transformations.",
      package: package(),
