@@ -1,8 +1,8 @@
 defmodule ChangesetMerger.Token do
+  @alphanumeric "ABCDEFGHJKLMNPQRSTUVWXYZabcdefhijkmnpqrstuvwxyz123456789"
+                |> String.split("", trim: true)
 
-  @alphanumeric "ABCDEFGHJKLMNPQRSTUVWXYZabcdefhijkmnpqrstuvwxyz123456789" |> String.split("", trim: true)
-
-  @doc"""
+  @doc """
   Generate an unguessable (non incremented) public identifier
 
   ## Examples
@@ -12,12 +12,13 @@ defmodule ChangesetMerger.Token do
 
   """
   def generate(len) do
-    Enum.reduce((1..len), [], fn (_, acc) ->
+    Enum.reduce(1..len, [], fn _, acc ->
       [Enum.random(@alphanumeric) | acc]
-    end) |> Enum.join("")
+    end)
+    |> Enum.join("")
   end
 
-  @doc"""
+  @doc """
   Add a token to your changeset if none is already set
 
   ## Examples
@@ -44,11 +45,12 @@ defmodule ChangesetMerger.Token do
   """
   def defaulted(changeset), do: defaulted(changeset, :token)
   def defaulted(changeset, field), do: defaulted(changeset, field, 7)
+
   def defaulted(changeset, field, len) do
     ChangesetMerger.defaulted(changeset, field, ChangesetMerger.Token.generate(len))
   end
 
-  @doc"""
+  @doc """
   Set a new token to your changeset
 
   ## Examples
@@ -77,11 +79,8 @@ defmodule ChangesetMerger.Token do
   """
   def force(changeset), do: force(changeset, :token)
   def force(changeset, field), do: force(changeset, field, 7)
+
   def force(changeset, field, len) do
     ChangesetMerger.force(changeset, field, ChangesetMerger.Token.generate(len))
   end
-
 end
-
-
-

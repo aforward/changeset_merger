@@ -6,7 +6,7 @@ defmodule ChangesetMerger do
 
   import Ecto.Changeset, only: [get_change: 2, put_change: 3]
 
-  @doc"""
+  @doc """
   Check for the `field` in the provided changeset, and if
   not found then set it ot the it based on the provide function.
 
@@ -34,7 +34,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc"""
+  @doc """
   Force a field to be a certain value.
 
   ## Examples
@@ -55,7 +55,7 @@ defmodule ChangesetMerger do
     put_change_if(changeset, field, val)
   end
 
-  @doc"""
+  @doc """
   Derive a field from another field (or fields) based on the provided function.  If
   the source field is not set, then do not do anything.
 
@@ -98,6 +98,7 @@ defmodule ChangesetMerger do
 
   """
   def derive(changeset, field, fun), do: derive(changeset, field, field, fun)
+
   def derive(changeset, from_field_or_fields, to_field, fun) do
     case field_values(changeset, from_field_or_fields) do
       nil -> changeset
@@ -105,7 +106,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc"""
+  @doc """
   Derive a field from another field (or fields) based on the provided function.
   only if the target field IS NOT set.  If the source field
   is not set, then do not do anything.
@@ -145,7 +146,7 @@ defmodule ChangesetMerger do
     end
   end
 
-  @doc"""
+  @doc """
   Changesets can run without a "changeset", by passing a tuple
   containing both the data and the supported types as a tuple instead of a struct:
 
@@ -162,14 +163,16 @@ defmodule ChangesetMerger do
         %{first_name: :string, last_name: :string, email: :string})
   """
   def create(params, types), do: create(%{}, params, types)
+
   def create(record, params, types) do
     {record, types}
     |> Ecto.Changeset.cast(params, Map.keys(types))
   end
 
   defp field_values(changeset, from_fields) when is_list(from_fields) do
-    Enum.map(from_fields, &(get_value(changeset, &1)))
+    Enum.map(from_fields, &get_value(changeset, &1))
   end
+
   defp field_values(changeset, from_field) do
     get_value(changeset, from_field)
   end
@@ -179,7 +182,7 @@ defmodule ChangesetMerger do
   end
 
   defp put_change_if(changeset, to_field, val) do
-    if (get_value(changeset, to_field) == val) do
+    if get_value(changeset, to_field) == val do
       changeset
     else
       put_change(changeset, to_field, val)

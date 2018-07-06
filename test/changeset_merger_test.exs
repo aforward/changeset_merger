@@ -8,7 +8,8 @@ defmodule ChangesetMergerTest do
   defstruct apples: nil
 
   test "handle struct" do
-    changes = ChangesetMerger.create(%ChangesetMergerTest{apples: "red"}, %{}, %{apples: :string})
+    changes =
+      ChangesetMerger.create(%ChangesetMergerTest{apples: "red"}, %{}, %{apples: :string})
       |> ChangesetMerger.defaulted(:apples, "blue")
       |> Map.get(:changes)
 
@@ -16,7 +17,8 @@ defmodule ChangesetMergerTest do
   end
 
   test "apply defaulted when missing" do
-    changeset = %{}
+    changeset =
+      %{}
       |> ChangesetMerger.create(%{apples: :string})
       |> ChangesetMerger.defaulted(:apples, "green")
 

@@ -1,8 +1,7 @@
 defmodule ChangesetMerger.ExpiresAt do
-
   alias ChangesetMerger.ExpiresAt
 
-  @doc"""
+  @doc """
   Generate an unguessable (non incremented) public token_expires_at
 
   ## Examples
@@ -14,21 +13,24 @@ defmodule ChangesetMerger.ExpiresAt do
       "20170921T045334-0500"
   """
   def generate(num, units) do
-    Timex.now
+    Timex.now()
     |> generate(num, units)
   end
+
   def generate(nil, num, units), do: generate(num, units)
+
   def generate(start_date_time, num, units) when is_binary(start_date_time) do
     start_date_time
     |> Timex.parse!("{ISO:Extended}")
     |> generate(num, units)
   end
+
   def generate(start_date_time, num, units) do
     start_date_time
     |> Timex.shift([{units, num}])
   end
 
-  @doc"""
+  @doc """
   Add a token to your changeset if none is already set
 
   ## Examples
@@ -49,11 +51,12 @@ defmodule ChangesetMerger.ExpiresAt do
 
   """
   def defaulted(changeset, field, num, units), do: defaulted(changeset, field, nil, num, units)
+
   def defaulted(changeset, field, start_date_time, num, units) do
     ChangesetMerger.defaulted(changeset, field, ExpiresAt.generate(start_date_time, num, units))
   end
 
-  @doc"""
+  @doc """
   Set a new token to your changeset
 
   ## Examples
@@ -74,11 +77,8 @@ defmodule ChangesetMerger.ExpiresAt do
 
   """
   def force(changeset, field, num, units), do: force(changeset, field, nil, num, units)
+
   def force(changeset, field, start_date_time, num, units) do
     ChangesetMerger.force(changeset, field, ExpiresAt.generate(start_date_time, num, units))
   end
-
 end
-
-
-

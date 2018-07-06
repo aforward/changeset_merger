@@ -1,6 +1,5 @@
 defmodule ChangesetMerger.Slug do
-
-  @doc"""
+  @doc """
   Return a string in form of a slug for a given string.
 
   ## Examples
@@ -15,9 +14,9 @@ defmodule ChangesetMerger.Slug do
       "trimming-and-removing-inside"
 
   """
-  def generate(text), do: text |> Slugger.slugify_downcase
+  def generate(text), do: text |> Slugger.slugify_downcase()
 
-  @doc"""
+  @doc """
   Derive the slug from an existing field. If
   the source field is not set, then do not do anything.
 
@@ -51,11 +50,12 @@ defmodule ChangesetMerger.Slug do
   """
   def derive(changeset), do: derive(changeset, :name, :slug)
   def derive(changeset, from_field), do: derive(changeset, from_field, :slug)
+
   def derive(changeset, from_field, to_field) do
     ChangesetMerger.derive(changeset, from_field, to_field, &ChangesetMerger.Slug.generate/1)
   end
 
-  @doc"""
+  @doc """
   Derive the slug from an existing field. If
   the source field is not set, then do not do anything.
 
@@ -92,9 +92,16 @@ defmodule ChangesetMerger.Slug do
 
   """
   def derive_if_missing(changeset), do: derive_if_missing(changeset, :name, :slug)
-  def derive_if_missing(changeset, from_field), do: derive_if_missing(changeset, from_field, :slug)
-  def derive_if_missing(changeset, from_field, to_field) do
-    ChangesetMerger.derive_if_missing(changeset, from_field, to_field, &ChangesetMerger.Slug.generate/1)
-  end
 
+  def derive_if_missing(changeset, from_field),
+    do: derive_if_missing(changeset, from_field, :slug)
+
+  def derive_if_missing(changeset, from_field, to_field) do
+    ChangesetMerger.derive_if_missing(
+      changeset,
+      from_field,
+      to_field,
+      &ChangesetMerger.Slug.generate/1
+    )
+  end
 end
