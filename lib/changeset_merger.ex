@@ -4,7 +4,7 @@ defmodule ChangesetMerger do
   with relative ease
   """
 
-  import Ecto.Changeset, only: [get_change: 2, put_change: 3]
+  import Ecto.Changeset, only: [put_change: 3, get_field: 2]
 
   @doc """
   Check for the `field` in the provided changeset, and if
@@ -28,7 +28,7 @@ defmodule ChangesetMerger do
       %{apples: "red"}
   """
   def defaulted(changeset, field, default_if_missing) do
-    case get_value(changeset, field) do
+    case get_field(changeset, field) do
       nil -> put_change_if(changeset, field, default_if_missing)
       _ -> changeset
     end
@@ -193,7 +193,7 @@ defmodule ChangesetMerger do
       Keyword.get(opts, :message, "at least one of #{Enum.join(fields, ", ")} must be provided")
 
     fields
-    |> Enum.map(&Ecto.Changeset.get_field(changeset, &1))
+    |> Enum.map(&get_field(changeset, &1))
     |> Enum.reject(&empty?/1)
     |> Enum.count()
     |> case do
@@ -238,19 +238,15 @@ defmodule ChangesetMerger do
   end
 
   defp field_values(changeset, from_fields) when is_list(from_fields) do
-    Enum.map(from_fields, &get_value(changeset, &1))
+    Enum.map(from_fields, &get_field(changeset, &1))
   end
 
   defp field_values(changeset, from_field) do
-    get_value(changeset, from_field)
-  end
-
-  defp get_value(changeset, field) do
-    get_change(changeset, field) || Map.get(changeset.data, field)
+    get_field(changeset, from_field)
   end
 
   defp put_change_if(changeset, to_field, val) do
-    if get_value(changeset, to_field) == val do
+    if get_field(changeset, to_field) == val do
       changeset
     else
       put_change(changeset, to_field, val)
