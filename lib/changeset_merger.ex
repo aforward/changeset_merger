@@ -147,6 +147,74 @@ defmodule ChangesetMerger do
   end
 
   @doc """
+  Validates that at least one of the provided fields are present in the changeset.
+
+  If the value of a field is `nil` or a string made only of whitespace,
+  the changeset is marked as invalid and an error is added. Note the
+  error won't be added though if the field already has an error.
+
+  ## Options
+    * `:message` - the message on failure, defaults to "at least one of apples can't be blank"
+    * `:trim` - a boolean that sets whether whitespaces are removed before
+      running the validation on binaries/strings, defaults to true
+
+  ## Examples
+
+      iex> ChangesetMerger.create(%{}, %{apples: :string})
+      ...> |> ChangesetMerger.validate_all_not_empty([:apples])
+      ...> |> Map.get(:errors)
+      [apples: {"at least one of apples must be provided", [validation: :all_not_empty]}]
+
+      iex> ChangesetMerger.create(%{}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.validate_all_not_empty([:apples, :bananas])
+      ...> |> Map.get(:errors)
+      [apples: {"at least one of apples, bananas must be provided", [validation: :all_not_empty]}, bananas: {"at least one of apples, bananas must be provided", [validation: :all_not_empty]}]
+
+      iex> ChangesetMerger.create(%{apples: "a"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.validate_all_not_empty([:apples, :bananas])
+      ...> |> Map.get(:errors)
+      []
+
+      iex> ChangesetMerger.create(%{bananas: "b"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.validate_all_not_empty([:apples, :bananas])
+      ...> |> Map.get(:errors)
+      []
+
+      iex> ChangesetMerger.create(%{apples: "a", bananas: "b"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.validate_all_not_empty([:apples, :bananas])
+      ...> |> Map.get(:errors)
+      []
+
+  """
+  def validate_all_not_empty(changeset, fields, opts \\ []) do
+    %{required: required, errors: errors, changes: changes} = changeset
+
+    message =
+      Keyword.get(opts, :message, "at least one of #{Enum.join(fields, ", ")} must be provided")
+
+    fields
+    |> Enum.map(&Ecto.Changeset.get_field(changeset, &1))
+    |> Enum.reject(&empty?/1)
+    |> Enum.count()
+    |> case do
+      0 ->
+        new_errors = Enum.map(fields, &{&1, {message, [validation: :all_not_empty]}})
+        changes = Map.drop(changes, fields)
+
+        %{
+          changeset
+          | changes: changes,
+            required: fields ++ required,
+            errors: new_errors ++ errors,
+            valid?: false
+        }
+
+      _ ->
+        changeset
+    end
+  end
+
+  @doc """
   Changesets can run without a "changeset", by passing a tuple
   containing both the data and the supported types as a tuple instead of a struct:
 
@@ -188,4 +256,8 @@ defmodule ChangesetMerger do
       put_change(changeset, to_field, val)
     end
   end
+
+  defp empty?(nil), do: true
+  defp empty?(input) when is_binary(input), do: String.trim(input) == ""
+  defp empty?(_), do: false
 end
