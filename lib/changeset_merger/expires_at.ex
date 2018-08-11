@@ -1,6 +1,11 @@
 defmodule ChangesetMerger.ExpiresAt do
   alias ChangesetMerger.ExpiresAt
 
+  @moduledoc """
+  Several helper functions to generate date/time values to represent
+  an expiring value.
+  """
+
   @doc """
   Generate an unguessable (non incremented) public token_expires_at
 
