@@ -237,11 +237,63 @@ defmodule ChangesetMerger do
     |> Ecto.Changeset.cast(params, Map.keys(types))
   end
 
-  defp field_values(changeset, from_fields) when is_list(from_fields) do
+  @doc """
+  Extract the value of a specific field.  It could be
+  in the changes, or part of the existing entity.  This is useful
+  when you want to make decisions based on the values, but that it
+  doesn't fit into the available functions.
+
+  If you provide a list, you get back a list.  If you provide
+  one field, you get back one field.
+
+  ## Examples
+
+      iex> ChangesetMerger.create(%{}, %{apples: :string})
+      ...> |> ChangesetMerger.field_value(:apples)
+      nil
+
+      iex> ChangesetMerger.create(%{apples: "a"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.field_values(:apples)
+      "a"
+  """
+  def field_value(changeset, from_field), do: field_values(changeset, from_field)
+
+  @doc """
+  Extract the value of a field, this could be provided
+  in the changes, or part of the existing entity.  This is useful
+  when you want to make decisions based on the values, but that it
+  doesn't fit into the available functions.
+
+  If you provide a list, you get back a list.  If you provide
+  one field, you get back one field.
+
+  ## Examples
+
+      iex> ChangesetMerger.create(%{}, %{apples: :string})
+      ...> |> ChangesetMerger.field_values([:apples])
+      [nil]
+
+      iex> ChangesetMerger.create(%{apples: "a"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.field_values([:apples])
+      ["a"]
+
+      iex> ChangesetMerger.create(%{apples: "a"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.field_values([:apples, :bananas])
+      ["a", nil]
+
+      iex> ChangesetMerger.create(%{apples: "a", bananas: "b"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.field_values([:apples, :bananas])
+      ["a", "b"]
+
+      iex> ChangesetMerger.create(%{apples: "a"}, %{apples: :string, bananas: :string})
+      ...> |> ChangesetMerger.field_values(:apples)
+      "a"
+  """
+  def field_values(changeset, from_fields) when is_list(from_fields) do
     Enum.map(from_fields, &get_field(changeset, &1))
   end
 
-  defp field_values(changeset, from_field) do
+  def field_values(changeset, from_field) do
     get_field(changeset, from_field)
   end
 
