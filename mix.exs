@@ -29,7 +29,7 @@ defmodule ChangesetMerger.Mixfile do
   defp deps do
     [
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ex_doc, github: "elixir-lang/ex_doc", only: :dev},
       {:ecto, "~> 2.2"},
       {:slugger, "~> 0.2.0"},
       {:version_tasks, "~> 0.10"},
