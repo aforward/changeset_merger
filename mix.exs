@@ -33,7 +33,7 @@ defmodule ChangesetMerger.Mixfile do
       {:ecto, ">= 3.0.0"},
       {:slugger, ">= 0.2.0"},
       {:version_tasks, ">= 0.10.0"},
-      {:fn_expr, ">= 0.2.0"},
+      {:fn_expr, ">= 0.2.0"}
     ]
   end
 

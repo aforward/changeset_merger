@@ -1,5 +1,4 @@
 defmodule ChangesetMerger.ExpiresAt do
-
   @moduledoc """
   Several helper functions to generate date/time values to represent
   an expiring value.
@@ -15,6 +14,9 @@ defmodule ChangesetMerger.ExpiresAt do
 
       iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 3, :minutes)
       #DateTime<2017-09-21 09:53:34Z>
+
+      iex> ChangesetMerger.ExpiresAt.generate("2019-02-04 21:40:15.397138Z", 3, :minutes)
+      #DateTime<2019-02-04 21:43:15Z>
   """
   def generate(num, units) do
     DateTime.utc_now()
@@ -37,7 +39,11 @@ defmodule ChangesetMerger.ExpiresAt do
     generate(start_date_time, num * 60, :second)
   end
 
-  def generate(start_date_time, num, :second), do: DateTime.add(start_date_time, num, :second)
+  def generate(start_date_time, num, :second) do
+    start_date_time
+    |> DateTime.add(num, :second)
+    |> DateTime.truncate(:second)
+  end
 
   @doc """
   Add a token to your changeset if none is already set
