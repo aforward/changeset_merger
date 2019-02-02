@@ -1,5 +1,4 @@
 defmodule ChangesetMerger.ExpiresAt do
-  alias ChangesetMerger.ExpiresAt
 
   @moduledoc """
   Several helper functions to generate date/time values to represent
@@ -11,14 +10,14 @@ defmodule ChangesetMerger.ExpiresAt do
 
   ## Examples
 
-      iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 2, :days) |> Timex.format!("{ISO:Basic}")
-      "20170923T045034-0500"
+      iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 2, :days)
+      #DateTime<2017-09-23 09:50:34Z>
 
-      iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 3, :minutes) |> Timex.format!("{ISO:Basic}")
-      "20170921T045334-0500"
+      iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 3, :minutes)
+      #DateTime<2017-09-21 09:53:34Z>
   """
   def generate(num, units) do
-    Timex.now()
+    DateTime.utc_now()
     |> generate(num, units)
   end
 
@@ -26,39 +25,42 @@ defmodule ChangesetMerger.ExpiresAt do
 
   def generate(start_date_time, num, units) when is_binary(start_date_time) do
     start_date_time
-    |> Timex.parse!("{ISO:Extended}")
+    |> from_iso8601()
     |> generate(num, units)
   end
 
-  def generate(start_date_time, num, units) do
-    start_date_time
-    |> Timex.shift([{units, num}])
+  def generate(start_date_time, num, :days) do
+    generate(start_date_time, num * 60 * 60 * 24, :second)
   end
+
+  def generate(start_date_time, num, :minutes) do
+    generate(start_date_time, num * 60, :second)
+  end
+
+  def generate(start_date_time, num, :second), do: DateTime.add(start_date_time, num, :second)
 
   @doc """
   Add a token to your changeset if none is already set
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{"token_expires_at" => Timex.parse!("2015-09-21T04:50:34-05:00", "{ISO:Extended}")}, %{token_expires_at: :utc_datetime})
+      iex> ChangesetMerger.create(%{"token_expires_at" => ChangesetMerger.ExpiresAt.from_iso8601("2015-09-21T04:50:34-05:00")}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.defaulted(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      ...> |> Timex.format!("{ISO:Basic}")
-      "20150921T095034+0000"
+      #DateTime<2015-09-21 09:50:34Z>
 
       iex> ChangesetMerger.create(%{"token_expires_at" => nil}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.defaulted(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      ...> |> Timex.format!("{ISO:Basic}")
-      "20170922T045034-0500"
+      #DateTime<2017-09-22 09:50:34Z>
 
   """
   def defaulted(changeset, field, num, units), do: defaulted(changeset, field, nil, num, units)
 
   def defaulted(changeset, field, start_date_time, num, units) do
-    ChangesetMerger.defaulted(changeset, field, ExpiresAt.generate(start_date_time, num, units))
+    ChangesetMerger.defaulted(changeset, field, generate(start_date_time, num, units))
   end
 
   @doc """
@@ -66,24 +68,30 @@ defmodule ChangesetMerger.ExpiresAt do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{"token_expires_at" => Timex.parse!("2015-09-21T04:50:34-05:00", "{ISO:Extended}")}, %{token_expires_at: :utc_datetime})
+      iex> ChangesetMerger.create(%{"token_expires_at" => ChangesetMerger.ExpiresAt.from_iso8601("2015-09-21T04:50:34-05:00")}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.force(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      ...> |> Timex.format!("{ISO:Basic}")
-      "20170922T045034-0500"
+      #DateTime<2017-09-22 09:50:34Z>
 
       iex> ChangesetMerger.create(%{"token_expires_at" => nil}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.force(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      ...> |> Timex.format!("{ISO:Basic}")
-      "20170922T045034-0500"
+      #DateTime<2017-09-22 09:50:34Z>
 
   """
   def force(changeset, field, num, units), do: force(changeset, field, nil, num, units)
 
   def force(changeset, field, start_date_time, num, units) do
-    ChangesetMerger.force(changeset, field, ExpiresAt.generate(start_date_time, num, units))
+    ChangesetMerger.force(changeset, field, generate(start_date_time, num, units))
+  end
+
+  def from_iso8601(input) do
+    input
+    |> DateTime.from_iso8601()
+    |> case do
+      {:ok, dt, _offset} -> dt
+    end
   end
 end
