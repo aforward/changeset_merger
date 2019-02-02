@@ -9,7 +9,7 @@ by adding it to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset_merger, "~> 0.3.18"}]
+  [{:changeset_merger, "~> 0.4.0"}]
 end
 ```
 
