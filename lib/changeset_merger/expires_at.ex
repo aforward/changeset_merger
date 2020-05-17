@@ -10,13 +10,13 @@ defmodule ChangesetMerger.ExpiresAt do
   ## Examples
 
       iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 2, :days)
-      #DateTime<2017-09-23 09:50:34Z>
+      ~U[2017-09-23 09:50:34Z]
 
       iex> ChangesetMerger.ExpiresAt.generate("2017-09-21T04:50:34-05:00", 3, :minutes)
-      #DateTime<2017-09-21 09:53:34Z>
+      ~U[2017-09-21 09:53:34Z]
 
       iex> ChangesetMerger.ExpiresAt.generate("2019-02-04 21:40:15.397138Z", 3, :minutes)
-      #DateTime<2019-02-04 21:43:15Z>
+      ~U[2019-02-04 21:43:15Z]
   """
   def generate(num, units) do
     DateTime.utc_now()
@@ -54,13 +54,13 @@ defmodule ChangesetMerger.ExpiresAt do
       ...> |> ChangesetMerger.ExpiresAt.defaulted(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      #DateTime<2015-09-21 09:50:34Z>
+      ~U[2015-09-21 09:50:34Z]
 
       iex> ChangesetMerger.create(%{"token_expires_at" => nil}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.defaulted(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      #DateTime<2017-09-22 09:50:34Z>
+      ~U[2017-09-22 09:50:34Z]
 
   """
   def defaulted(changeset, field, num, units), do: defaulted(changeset, field, nil, num, units)
@@ -78,13 +78,13 @@ defmodule ChangesetMerger.ExpiresAt do
       ...> |> ChangesetMerger.ExpiresAt.force(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      #DateTime<2017-09-22 09:50:34Z>
+      ~U[2017-09-22 09:50:34Z]
 
       iex> ChangesetMerger.create(%{"token_expires_at" => nil}, %{token_expires_at: :utc_datetime})
       ...> |> ChangesetMerger.ExpiresAt.force(:token_expires_at, "2017-09-21T04:50:34-05:00", 1, :days)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token_expires_at)
-      #DateTime<2017-09-22 09:50:34Z>
+      ~U[2017-09-22 09:50:34Z]
 
   """
   def force(changeset, field, num, units), do: force(changeset, field, nil, num, units)
