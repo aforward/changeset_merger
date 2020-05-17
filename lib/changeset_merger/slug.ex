@@ -22,12 +22,12 @@ defmodule ChangesetMerger.Slug do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{"name" => "Granny Smith"}, %{name: :string})
+      iex> ChangesetMerger.create(%{"name" => "Granny Smith"}, %{name: :string, slug: :string})
       ...> |> ChangesetMerger.Slug.derive(:name)
       ...> |> Map.get(:changes)
       %{name: "Granny Smith", slug: "granny-smith"}
 
-      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string, slug: :string})
       ...> |> ChangesetMerger.Slug.derive(:apples)
       ...> |> Map.get(:changes)
       %{apples: "Granny Smith", slug: "granny-smith"}
@@ -37,7 +37,7 @@ defmodule ChangesetMerger.Slug do
       ...> |> Map.get(:changes)
       %{}
 
-      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string, apples_slug: :string})
       ...> |> ChangesetMerger.Slug.derive(:apples, :apples_slug)
       ...> |> Map.get(:changes)
       %{apples: "Granny Smith", apples_slug: "granny-smith"}
@@ -65,22 +65,22 @@ defmodule ChangesetMerger.Slug do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{"name" => "Granny Smith"}, %{name: :string})
+      iex> ChangesetMerger.create(%{"name" => "Granny Smith"}, %{name: :string, slug: :string})
       ...> |> ChangesetMerger.Slug.derive_if_missing(:name)
       ...> |> Map.get(:changes)
       %{name: "Granny Smith", slug: "granny-smith"}
 
-      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string, slug: :string})
       ...> |> ChangesetMerger.Slug.derive_if_missing(:apples)
       ...> |> Map.get(:changes)
       %{apples: "Granny Smith", slug: "granny-smith"}
 
-      iex> ChangesetMerger.create(%{}, %{apples: :string})
+      iex> ChangesetMerger.create(%{}, %{apples: :string, apples_slug: :string})
       ...> |> ChangesetMerger.Slug.derive_if_missing(:apples, :apples_slug)
       ...> |> Map.get(:changes)
       %{}
 
-      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "Granny Smith"}, %{apples: :string, apples_slug: :string})
       ...> |> ChangesetMerger.Slug.derive_if_missing(:apples, :apples_slug)
       ...> |> Map.get(:changes)
       %{apples: "Granny Smith", apples_slug: "granny-smith"}

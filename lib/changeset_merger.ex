@@ -4,7 +4,7 @@ defmodule ChangesetMerger do
   with relative ease
   """
 
-  import Ecto.Changeset, only: [put_change: 3, get_field: 2]
+  import Ecto.Changeset, only: [put_change: 3, get_field: 3]
 
   @doc """
   Check for the `field` in the provided changeset, and if
@@ -28,7 +28,7 @@ defmodule ChangesetMerger do
       %{apples: "red"}
   """
   def defaulted(changeset, field, default_if_missing) do
-    case get_field(changeset, field) do
+    case get_field(changeset, field, nil) do
       nil -> put_change_if(changeset, field, default_if_missing)
       _ -> changeset
     end
@@ -61,27 +61,27 @@ defmodule ChangesetMerger do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{}, %{apples: :string})
+      iex> ChangesetMerger.create(%{}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{}
 
-      iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
 
-      iex> ChangesetMerger.create(%{apples: "green"}, %{}, %{apples: :string})
+      iex> ChangesetMerger.create(%{apples: "green"}, %{}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{oranges: "neerg"}
 
-      iex> ChangesetMerger.create(%{apples: "green", oranges: "neerg"}, %{}, %{apples: :string})
+      iex> ChangesetMerger.create(%{apples: "green", oranges: "neerg"}, %{}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{}
 
-      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string})
+      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string, oranges: :string})
       ...> |> ChangesetMerger.derive([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
       ...> |> Map.get(:changes)
       %{apples: "green", bananas: "blue", oranges: "greenblue"}
@@ -118,12 +118,12 @@ defmodule ChangesetMerger do
       ...> |> Map.get(:changes)
       %{}
 
-      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string})
+      iex> ChangesetMerger.create(%{"apples" => "green", "bananas" => "blue"}, %{apples: :string, bananas: :string, oranges: :string})
       ...> |> ChangesetMerger.derive_if_missing([:apples, :bananas], :oranges, fn([a,b]) -> a <> b end)
       ...> |> Map.get(:changes)
       %{apples: "green", bananas: "blue", oranges: "greenblue"}
 
-      iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string})
+      iex> ChangesetMerger.create(%{"apples" => "green"}, %{apples: :string, oranges: :string})
       ...> |> ChangesetMerger.derive_if_missing(:apples, :oranges, fn(x) -> String.reverse(x) end)
       ...> |> Map.get(:changes)
       %{apples: "green", oranges: "neerg"}
@@ -193,7 +193,7 @@ defmodule ChangesetMerger do
       Keyword.get(opts, :message, "at least one of #{Enum.join(fields, ", ")} must be provided")
 
     fields
-    |> Enum.map(&get_field(changeset, &1))
+    |> Enum.map(&get_field(changeset, &1, nil))
     |> Enum.reject(&empty?/1)
     |> Enum.count()
     |> case do
@@ -290,15 +290,15 @@ defmodule ChangesetMerger do
       "a"
   """
   def field_values(changeset, from_fields) when is_list(from_fields) do
-    Enum.map(from_fields, &get_field(changeset, &1))
+    Enum.map(from_fields, &get_field(changeset, &1, nil))
   end
 
   def field_values(changeset, from_field) do
-    get_field(changeset, from_field)
+    get_field(changeset, from_field, nil)
   end
 
   defp put_change_if(changeset, to_field, val) do
-    if get_field(changeset, to_field) == val do
+    if get_field(changeset, to_field, nil) == val do
       changeset
     else
       put_change(changeset, to_field, val)

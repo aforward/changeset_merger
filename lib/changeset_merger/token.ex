@@ -23,14 +23,14 @@ defmodule ChangesetMerger.Token do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{}, %{})
+      iex> ChangesetMerger.create(%{}, %{token: :string})
       ...> |> ChangesetMerger.Token.defaulted()
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token)
       ...> |> String.length
       7
 
-      iex> ChangesetMerger.create(%{}, %{})
+      iex> ChangesetMerger.create(%{}, %{identifier: :string})
       ...> |> ChangesetMerger.Token.defaulted(:identifier, 20)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:identifier)
@@ -55,14 +55,14 @@ defmodule ChangesetMerger.Token do
 
   ## Examples
 
-      iex> ChangesetMerger.create(%{}, %{})
+      iex> ChangesetMerger.create(%{}, %{token: :string})
       ...> |> ChangesetMerger.Token.force()
       ...> |> Map.get(:changes)
       ...> |> Map.get(:token)
       ...> |> String.length
       7
 
-      iex> ChangesetMerger.create(%{}, %{})
+      iex> ChangesetMerger.create(%{}, %{identifier: :string})
       ...> |> ChangesetMerger.Token.force(:identifier, 20)
       ...> |> Map.get(:changes)
       ...> |> Map.get(:identifier)
