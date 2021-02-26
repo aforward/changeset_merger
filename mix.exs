@@ -9,7 +9,7 @@ defmodule ChangesetMerger.Mixfile do
     [
       app: :changeset_merger,
       version: @version,
-      elixir: ">= 1.4.0",
+      elixir: ">= 1.10.0",
       name: "ChangesetMerger",
       description: "A library for common Ecto changeset transformations.",
       package: package(),
@@ -30,10 +30,10 @@ defmodule ChangesetMerger.Mixfile do
     [
       {:mix_test_watch, "~> 0.3", only: :dev, runtime: false},
       {:ex_doc, github: "elixir-lang/ex_doc", only: :dev},
-      {:ecto, "~> 3.4"},
-      {:slugger, ">= 0.2.0"},
-      {:version_tasks, ">= 0.11.0"},
-      {:fn_expr, ">= 0.2.0"}
+      {:ecto, "~> 3.5"},
+      {:slugger, ">= 0.3.0"},
+      {:version_tasks, ">= 0.12.0"},
+      {:fn_expr, ">= 0.3.0"}
     ]
   end
 
